@@ -1,6 +1,8 @@
 package com.example.shopiesmac;
 
+import java.lang.String;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -36,6 +38,14 @@ public class MainActivity extends RobotActivity implements OnClickListener, Shop
 	private EditText mMessage, mX, mY, mTheta;
 	private TextView mStatus;
 	public ShopieSMAC.Monitor mMarkerMonitor;
+	private int markerNumber = 0;
+	private float markerX = 0, markerY = 0, markerTheta = 0;
+	private List<String> listOrder = new ArrayList<String>();
+	private boolean canDoSomething = true;
+	public static boolean iamMarker14 = true;
+	
+	private Button btnStartRobot, btnDoneRobot;
+	
 	@Override
 	public void onRobotConnected(String addr, int port) {
 		super.onRobotConnected(addr, port);
@@ -90,11 +100,17 @@ public class MainActivity extends RobotActivity implements OnClickListener, Shop
 	protected void onCreate(Bundle savedInstanceSate) {
 		super.onCreate(savedInstanceSate);
 		setContentView(R.layout.activity_main);
-		
+		listOrder.add("Omachi");
+		listOrder.add("Giấy ăn");
+		listOrder.add("Táo");
+		listOrder.add("Socola");
+		listOrder.add("Poca");
 		mBtScan = (Button) findViewById(R.id.scan);
 		mBtMove = (Button) findViewById(R.id.move);
 		mBtSpeak = (Button) findViewById(R.id.speak);
 		mBtDetectMarker = (Button) findViewById(R.id.start_marker_detect);
+		btnStartRobot = (Button) findViewById(R.id.start_robot);
+		btnDoneRobot = (Button) findViewById(R.id.done_robot);
 		mMessage = (EditText) findViewById(R.id.ed_message);
 		mBtScan.setOnClickListener(this);
 		mBtMove.setOnClickListener(this);
@@ -106,6 +122,16 @@ public class MainActivity extends RobotActivity implements OnClickListener, Shop
 		mTheta = (EditText) findViewById(R.id.t);
 		
 		mStatus = (TextView) findViewById(R.id.status);
+		
+		
+		//Cua Quy
+		btnStartRobot.setOnClickListener(this);
+		btnDoneRobot.setOnClickListener(this);
+		
+		
+		
+		//Cua Quy
+		
 		
 	}
 
@@ -146,16 +172,136 @@ public class MainActivity extends RobotActivity implements OnClickListener, Shop
 				}
 			}).start();
 			break;
+			
+		
+		case R.id.start_robot:
+			new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					// Giai thuat o day
+					Log.d("QUYYYY", "Bat Dau Chay");
+					if(iamMarker14) {
+						
+						//Vao vi tri chien dau
+						move((float) 0, (float) -2, (float) 0, wakeUp, getConnectedRobot());
+						move((float) 2.5, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+						
+						//Vao khu vuc 1
+						move((float) 0, (float) -1.5, (float) 0, wakeUp, getConnectedRobot());
+						
+						//Lay do o khu vuc 1
+						if(listOrder.get(0).toLowerCase().contains("omachi") || listOrder.get(0).toLowerCase().contains("hảo hảo")) {
+							
+						}
+						
+						//Vao khu vuc 2
+						move((float) 0, (float) -2, (float) 0, wakeUp, getConnectedRobot());
+						move((float) 0, (float) -1.5, (float) 0, wakeUp, getConnectedRobot());
+						move((float) 5, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+						move((float) 0, (float) 1.5, (float) 0, wakeUp, getConnectedRobot());
+						
+						//Lay do o khu vuc 2
+						
+						//Vao khu vuc 3
+						move((float) 0, (float) 2, (float) 0, wakeUp, getConnectedRobot());
+						
+						//Lay do o khu vuc 3
+						
+						//Vao khu vuc 4
+						move((float) 0, (float) 1.5, (float) 0, wakeUp, getConnectedRobot());
+						
+						//Lay do o khu vuc 4
+						
+						//Quay tro ve
+						move((float) -7.5, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+						move((float) 0, (float) 2, (float) 0, wakeUp, getConnectedRobot());
+
+					} else {
+						//Dang o vi tri 11
+						Log.d("QUYYYY", "Dang o vi tri 11");
+                        move((float) 0, (float) 0, (float) -1.57, wakeUp, getConnectedRobot());
+                        move((float) 2, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+                        move((float) 0, (float) 0, (float) 1.57, wakeUp, getConnectedRobot());
+                        move((float) 2.5, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+                        move((float) 0, (float) 0, (float) -1.57, wakeUp, getConnectedRobot());
+                        move((float) 1, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+					}
+				}
+			}).start();
+			break;
+		case R.id.done_robot:
+			new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					// Hoan thanh cong viec
+					
+				}
+			}).start();
+			break;
+			
 		default:
 			break;
 		}
 	}
-	
+
 	public Timer timerDetect;
 	public Timer timerMarker;
 	public boolean wakeUp = true;
 	public boolean mMarkerDetect = false;
 	public ShopieSensors.Monitor mSensorsMonitor;
+
+    private void sayOrderItem(final String itemName) {
+    	new Thread(new Runnable() {
+			@Override
+			public void run() {
+				speak(itemName, RobotTextToSpeech.ROBOT_TTS_LANG_VI);
+			}
+		}).start();
+    }
+    
+    private boolean waitCommand() {
+    	for(int i = 0; i < 1000; i++) {
+    		if(canDoSomething) {
+    			break;
+    		}
+    		try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
+    	return false;
+    }
+
+	private boolean getStartPosition() {
+		
+		//True start is marker 14
+		//False start is marker 11
+		try {
+			startMarkerDetection();
+			for(int i = 0; i < 4; i++) {
+				Thread.sleep(100);
+				if(markerNumber == 11) {
+					return false;
+				} else if (markerNumber == 14) {
+					return true;
+				}
+				move(Float.parseFloat("0"), Float.parseFloat("0"), Float.parseFloat("1.57"), wakeUp, getConnectedRobot());
+
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		
+		return true;
+	}
+	
 	public void startDetectMarker() throws Exception {
 		if (getConnectedRobot() == null) {
 			scanRobot();
@@ -264,6 +410,10 @@ public class MainActivity extends RobotActivity implements OnClickListener, Shop
 						}
 						mMarkerDetect = true;
 						MarkerPose mMarkerPose = detectedMarker.getPose();
+						markerNumber = detectedMarker.getMarkerId();
+						markerX = mMarkerPose.x;
+						markerY = mMarkerPose.y;
+						markerTheta = mMarkerPose.theta;
 						log("Relocation Marker POS: " + detectedMarker.getMarkerId() + ": " + mMarkerPose.x + " " + mMarkerPose.y + " " + mMarkerPose.theta);
 						try {
 							stopMarkersMonitor();
@@ -310,6 +460,7 @@ public class MainActivity extends RobotActivity implements OnClickListener, Shop
 		return result;
 	}
 	public void move(final float x, final float y, final float theta, final boolean wakeup, final Robot robot) {
+		canDoSomething = false;
 		if(getConnectedRobot() == null) {
 			scan();
 		} else {
@@ -320,8 +471,10 @@ public class MainActivity extends RobotActivity implements OnClickListener, Shop
 					RobotMoveTargetPosition position = new RobotMoveTargetPosition(x, y, theta);
 					boolean b = RobotMotionLocomotionController.moveTo(getConnectedRobot(), position);
 					if(b) {
+						canDoSomething = true;
 						log("Move successful");
 					} else {
+						canDoSomething = true;
 						log("Move failed");
 					}
 				}
