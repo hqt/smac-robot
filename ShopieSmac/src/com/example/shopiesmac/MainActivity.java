@@ -40,9 +40,11 @@ public class MainActivity extends RobotActivity implements OnClickListener, Shop
 	public ShopieSMAC.Monitor mMarkerMonitor;
 	private int markerNumber = 0;
 	private float markerX = 0, markerY = 0, markerTheta = 0;
-	private List<String> listOrder = new ArrayList<String>();
+	public static List<String> listOrder = new ArrayList<String>();
 	private boolean canDoSomething = true;
 	public static boolean iamMarker14 = true;
+	
+	private int numberOfFoodInPackage = 0;
 	
 	private Button btnStartRobot, btnDoneRobot;
 	
@@ -100,11 +102,11 @@ public class MainActivity extends RobotActivity implements OnClickListener, Shop
 	protected void onCreate(Bundle savedInstanceSate) {
 		super.onCreate(savedInstanceSate);
 		setContentView(R.layout.activity_main);
-		listOrder.add("Omachi");
-		listOrder.add("Giấy ăn");
-		listOrder.add("Táo");
-		listOrder.add("Socola");
-		listOrder.add("Poca");
+		listOrder.add("3 Omachi");
+		listOrder.add("4 Giấy ăn");
+		listOrder.add("2 Táo");
+		listOrder.add("1 Socola");
+		listOrder.add("5 Poca");
 		mBtScan = (Button) findViewById(R.id.scan);
 		mBtMove = (Button) findViewById(R.id.move);
 		mBtSpeak = (Button) findViewById(R.id.speak);
@@ -127,9 +129,6 @@ public class MainActivity extends RobotActivity implements OnClickListener, Shop
 		//Cua Quy
 		btnStartRobot.setOnClickListener(this);
 		btnDoneRobot.setOnClickListener(this);
-		
-		
-		
 		//Cua Quy
 		
 		
@@ -184,36 +183,159 @@ public class MainActivity extends RobotActivity implements OnClickListener, Shop
 					if(iamMarker14) {
 						
 						//Vao vi tri chien dau
-						move((float) 0, (float) -2, (float) 0, wakeUp, getConnectedRobot());
-						move((float) 2.5, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+						vaoViTriChienDau();
 						
 						//Vao khu vuc 1
 						move((float) 0, (float) -1.5, (float) 0, wakeUp, getConnectedRobot());
 						
 						//Lay do o khu vuc 1
-						if(listOrder.get(0).toLowerCase().contains("omachi") || listOrder.get(0).toLowerCase().contains("hảo hảo")) {
-							
+						//Truoc mat
+						boolean hadMoveToPosition = false;
+						for(int i = 0; i < listOrder.size(); i++) {
+							if(listOrder.get(i).toLowerCase().contains("omachi") || listOrder.get(i).toLowerCase().contains("hảo hảo")) {
+								numberOfFoodInPackage++;
+								if(!hadMoveToPosition) {
+									move((float) 1.5, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+									hadMoveToPosition = true;
+								}
+								sayOrderItem(listOrder.get(i));
+							}
 						}
+						if(hadMoveToPosition) {
+							move((float) -1.5, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+							hadMoveToPosition = false;
+						}
+						//Sau lung
+						for(int i = 0; i < listOrder.size(); i++) {
+							if(listOrder.get(i).toLowerCase().contains("xà phòng tắm") || listOrder.get(i).toLowerCase().contains("nước rửa tay khô")) {
+								numberOfFoodInPackage++;
+								if(!hadMoveToPosition) {
+									move((float) -1.5, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+									hadMoveToPosition = true;
+								}
+								sayOrderItem(listOrder.get(i));
+							}
+						}
+						if(hadMoveToPosition) {
+							move((float) 1.5, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+							hadMoveToPosition = false;
+						}
+						
 						
 						//Vao khu vuc 2
 						move((float) 0, (float) -2, (float) 0, wakeUp, getConnectedRobot());
+						
+						//Lay do o khu vuc 2
+						//Truoc mat
+						for(int i = 0; i < listOrder.size(); i++) {
+							if(listOrder.get(i).toLowerCase().contains("café") || listOrder.get(i).toLowerCase().contains("trà nhài")) {
+								numberOfFoodInPackage++;
+								if(!hadMoveToPosition) {
+									move((float) 1.5, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+									hadMoveToPosition = true;
+								}
+								sayOrderItem(listOrder.get(i));
+							}
+						}
+						if(hadMoveToPosition) {
+							move((float) -1.5, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+							hadMoveToPosition = false;
+						}
+						//Sau lung
+						for(int i = 0; i < listOrder.size(); i++) {
+							if(listOrder.get(i).toLowerCase().contains("giấy ăn") || listOrder.get(i).toLowerCase().contains("giấy ăn")) {
+								numberOfFoodInPackage++;
+								if(!hadMoveToPosition) {
+									move((float) -1.5, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+									hadMoveToPosition = true;
+								}
+								sayOrderItem(listOrder.get(i));
+							}
+						}
+						if(hadMoveToPosition) {
+							move((float) 1.5, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+							hadMoveToPosition = false;
+						}
+						
+						
+						
+						//Vao khu vuc 3
 						move((float) 0, (float) -1.5, (float) 0, wakeUp, getConnectedRobot());
 						move((float) 5, (float) 0, (float) 0, wakeUp, getConnectedRobot());
 						move((float) 0, (float) 1.5, (float) 0, wakeUp, getConnectedRobot());
 						
-						//Lay do o khu vuc 2
-						
-						//Vao khu vuc 3
-						move((float) 0, (float) 2, (float) 0, wakeUp, getConnectedRobot());
-						
+
+
 						//Lay do o khu vuc 3
+						//Truoc mat
+						for(int i = 0; i < listOrder.size(); i++) {
+							if(listOrder.get(i).toLowerCase().contains("táo") || listOrder.get(i).toLowerCase().contains("cà rốt") || listOrder.get(i).toLowerCase().contains("nho")) {
+								numberOfFoodInPackage++;
+								if(!hadMoveToPosition) {
+									move((float) 1.5, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+									hadMoveToPosition = true;
+								}
+								sayOrderItem(listOrder.get(i));
+							}
+						}
+						if(hadMoveToPosition) {
+							move((float) -1.5, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+							hadMoveToPosition = false;
+						}
+						//Sau lung
+						for(int i = 0; i < listOrder.size(); i++) {
+							if(listOrder.get(i).toLowerCase().contains("kẹo cao su") || listOrder.get(i).toLowerCase().contains("bánh quy") || listOrder.get(i).toLowerCase().contains("socola")) {
+								numberOfFoodInPackage++;
+								if(!hadMoveToPosition) {
+									move((float) -1.5, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+									hadMoveToPosition = true;
+								}
+								sayOrderItem(listOrder.get(i));
+							}
+						}
+						if(hadMoveToPosition) {
+							move((float) 1.5, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+							hadMoveToPosition = false;
+						}
+						
 						
 						//Vao khu vuc 4
-						move((float) 0, (float) 1.5, (float) 0, wakeUp, getConnectedRobot());
+						
+						move((float) 0, (float) 2, (float) 0, wakeUp, getConnectedRobot());
 						
 						//Lay do o khu vuc 4
-						
+						//Truoc mat
+						for(int i = 0; i < listOrder.size(); i++) {
+							if(listOrder.get(i).toLowerCase().contains("sữa chua uống") || listOrder.get(i).toLowerCase().contains("nước suối") || listOrder.get(i).toLowerCase().contains("coca")) {
+								numberOfFoodInPackage++;
+								if(!hadMoveToPosition) {
+									move((float) 1.5, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+									hadMoveToPosition = true;
+								}
+								sayOrderItem(listOrder.get(i));
+							}
+						}
+						if(hadMoveToPosition) {
+							move((float) -1.5, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+							hadMoveToPosition = false;
+						}
+						//Sau lung
+						for(int i = 0; i < listOrder.size(); i++) {
+							if(listOrder.get(i).toLowerCase().contains("ostar") || listOrder.get(i).toLowerCase().contains("poca")) {
+								numberOfFoodInPackage++;
+								if(!hadMoveToPosition) {
+									move((float) -1.5, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+									hadMoveToPosition = true;
+								}
+								sayOrderItem(listOrder.get(i));
+							}
+						}
+						if(hadMoveToPosition) {
+							move((float) 1.5, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+							hadMoveToPosition = false;
+						}
 						//Quay tro ve
+						move((float) 0, (float) 1.5, (float) 0, wakeUp, getConnectedRobot());
 						move((float) -7.5, (float) 0, (float) 0, wakeUp, getConnectedRobot());
 						move((float) 0, (float) 2, (float) 0, wakeUp, getConnectedRobot());
 
@@ -251,12 +373,34 @@ public class MainActivity extends RobotActivity implements OnClickListener, Shop
 	public boolean wakeUp = true;
 	public boolean mMarkerDetect = false;
 	public ShopieSensors.Monitor mSensorsMonitor;
+	
+	private void vaoViTriChienDau() {
+		
+		try {
+			startMarkerDetection();
+			float diChuyenSangPhai = (float) (-2 + 0.5 + markerY);
+			float diChuyenLenTren = (float) (2.5 - 2.1 + markerX);
+			move((float) 0, (float) diChuyenSangPhai, (float) 0, wakeUp, getConnectedRobot());
+			move((float) diChuyenLenTren, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
 
     private void sayOrderItem(final String itemName) {
     	new Thread(new Runnable() {
 			@Override
 			public void run() {
-				speak(itemName, RobotTextToSpeech.ROBOT_TTS_LANG_VI);
+				speak("lấy giúp tôi " + itemName, RobotTextToSpeech.ROBOT_TTS_LANG_VI);
+				try {
+					Thread.sleep(1800);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}).start();
     }
