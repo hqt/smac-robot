@@ -44,6 +44,7 @@ public class MainActivity extends RobotActivity implements OnClickListener, Shop
 	private boolean canDoSomething = true;
 	public static boolean iamMarker14 = true;
 	
+	private boolean completeMission = false;
 	private int numberOfFoodInPackage = 0;
 	
 	private Button btnStartRobot, btnDoneRobot;
@@ -102,11 +103,11 @@ public class MainActivity extends RobotActivity implements OnClickListener, Shop
 	protected void onCreate(Bundle savedInstanceSate) {
 		super.onCreate(savedInstanceSate);
 		setContentView(R.layout.activity_main);
-		listOrder.add("3 Omachi");
+		listOrder.add("3 Poca");
 		listOrder.add("4 Giấy ăn");
 		listOrder.add("2 Táo");
 		listOrder.add("1 Socola");
-		listOrder.add("5 Poca");
+		listOrder.add("5 Xà phòng tắm");
 		mBtScan = (Button) findViewById(R.id.scan);
 		mBtMove = (Button) findViewById(R.id.move);
 		mBtSpeak = (Button) findViewById(R.id.speak);
@@ -195,14 +196,14 @@ public class MainActivity extends RobotActivity implements OnClickListener, Shop
 							if(listOrder.get(i).toLowerCase().contains("omachi") || listOrder.get(i).toLowerCase().contains("hảo hảo")) {
 								numberOfFoodInPackage++;
 								if(!hadMoveToPosition) {
-									move((float) 1.5, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+									move((float) 1, (float) 0, (float) 0, wakeUp, getConnectedRobot());
 									hadMoveToPosition = true;
 								}
 								sayOrderItem(listOrder.get(i));
 							}
 						}
 						if(hadMoveToPosition) {
-							move((float) -1.5, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+							move((float) -1, (float) 0, (float) 0, wakeUp, getConnectedRobot());
 							hadMoveToPosition = false;
 						}
 						//Sau lung
@@ -231,14 +232,14 @@ public class MainActivity extends RobotActivity implements OnClickListener, Shop
 							if(listOrder.get(i).toLowerCase().contains("café") || listOrder.get(i).toLowerCase().contains("trà nhài")) {
 								numberOfFoodInPackage++;
 								if(!hadMoveToPosition) {
-									move((float) 1.5, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+									move((float) 1, (float) 0, (float) 0, wakeUp, getConnectedRobot());
 									hadMoveToPosition = true;
 								}
 								sayOrderItem(listOrder.get(i));
 							}
 						}
 						if(hadMoveToPosition) {
-							move((float) -1.5, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+							move((float) -1, (float) 0, (float) 0, wakeUp, getConnectedRobot());
 							hadMoveToPosition = false;
 						}
 						//Sau lung
@@ -287,14 +288,14 @@ public class MainActivity extends RobotActivity implements OnClickListener, Shop
 							if(listOrder.get(i).toLowerCase().contains("kẹo cao su") || listOrder.get(i).toLowerCase().contains("bánh quy") || listOrder.get(i).toLowerCase().contains("socola")) {
 								numberOfFoodInPackage++;
 								if(!hadMoveToPosition) {
-									move((float) -1.5, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+									move((float) -1, (float) 0, (float) 0, wakeUp, getConnectedRobot());
 									hadMoveToPosition = true;
 								}
 								sayOrderItem(listOrder.get(i));
 							}
 						}
 						if(hadMoveToPosition) {
-							move((float) 1.5, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+							move((float) 1, (float) 0, (float) 0, wakeUp, getConnectedRobot());
 							hadMoveToPosition = false;
 						}
 						
@@ -324,14 +325,14 @@ public class MainActivity extends RobotActivity implements OnClickListener, Shop
 							if(listOrder.get(i).toLowerCase().contains("ostar") || listOrder.get(i).toLowerCase().contains("poca")) {
 								numberOfFoodInPackage++;
 								if(!hadMoveToPosition) {
-									move((float) -1.5, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+									move((float) -1, (float) 0, (float) 0, wakeUp, getConnectedRobot());
 									hadMoveToPosition = true;
 								}
 								sayOrderItem(listOrder.get(i));
 							}
 						}
 						if(hadMoveToPosition) {
-							move((float) 1.5, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+							move((float) 1, (float) 0, (float) 0, wakeUp, getConnectedRobot());
 							hadMoveToPosition = false;
 						}
 						//Quay tro ve
@@ -358,7 +359,7 @@ public class MainActivity extends RobotActivity implements OnClickListener, Shop
 				@Override
 				public void run() {
 					// Hoan thanh cong viec
-					
+					completeMission = true;
 				}
 			}).start();
 			break;
@@ -377,11 +378,8 @@ public class MainActivity extends RobotActivity implements OnClickListener, Shop
 	private void vaoViTriChienDau() {
 		
 		try {
-			startMarkerDetection();
-			float diChuyenSangPhai = (float) (-2 + 0.5 + markerY);
-			float diChuyenLenTren = (float) (2.5 - 2.1 + markerX);
-			move((float) 0, (float) diChuyenSangPhai, (float) 0, wakeUp, getConnectedRobot());
-			move((float) diChuyenLenTren, (float) 0, (float) 0, wakeUp, getConnectedRobot());
+			move((float) 0, (float) -2, (float) 0, wakeUp, getConnectedRobot());
+			move((float) 2.5, (float) 0, (float) 0, wakeUp, getConnectedRobot());
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -395,14 +393,21 @@ public class MainActivity extends RobotActivity implements OnClickListener, Shop
 			@Override
 			public void run() {
 				speak("lấy giúp tôi " + itemName, RobotTextToSpeech.ROBOT_TTS_LANG_VI);
+				
+			}
+		}).start();
+		for(int i = 0; i < 10; i++) {
+			if(completeMission) {
+				break;
+			}
 				try {
-					Thread.sleep(1800);
+					Thread.sleep(1000);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			}
-		}).start();
+		}
+		completeMission = false;
     }
     
     private boolean waitCommand() {
