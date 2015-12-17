@@ -1,10 +1,15 @@
 package com.example.shopiesmac;
 
-import java.lang.String;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
-import java.util.TimerTask;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -51,6 +56,12 @@ public class MainActivity extends RobotActivity implements OnClickListener,
 	private int hadMoveToSTep = 0;
 	private boolean isMoveBack = false;
 	
+	//Get Order
+	public static String urlOrder = "http://developer.smac.fpt.com.vn/smac2015/game/api/v1/orders?access_token=";
+	public static String urlSaleOff = "http://developer.smac.fpt.com.vn/smac2015/game/api/v1/saleoffs?access_token=";
+	public static final String accessToken = "096648c0-a4f1-11e5-a708-b73dceb94e66";
+	public static List<String> lstSaleOff = null;
+	public static final String USER_AGENT = "Mozilla/5.0";
 
 	private Button btnStartRobot, btnDoneRobot;
 
@@ -108,11 +119,11 @@ public class MainActivity extends RobotActivity implements OnClickListener,
 	protected void onCreate(Bundle savedInstanceSate) {
 		super.onCreate(savedInstanceSate);
 		setContentView(R.layout.activity_main);
-		listOrder.add("3 Poca");
-		listOrder.add("4 Giấy ăn");
-		listOrder.add("2 Táo");
-		listOrder.add("1 Socola");
-		listOrder.add("5 Xà phòng tắm");
+//		listOrder.add("3 Poca");
+//		listOrder.add("4 Giấy ăn");
+//		listOrder.add("2 Táo");
+//		listOrder.add("1 Socola");
+//		listOrder.add("5 Xà phòng tắm");
 		mBtScan = (Button) findViewById(R.id.scan);
 		mBtMove = (Button) findViewById(R.id.move);
 		mBtSpeak = (Button) findViewById(R.id.speak);
@@ -183,11 +194,43 @@ public class MainActivity extends RobotActivity implements OnClickListener,
 				@Override
 				public void run() {
 					// Giai thuat o day
-					Log.d("QUYYYY", "Bat Dau Chay");
-					if (iamMarker14) {
-						diLayDo();
-					} else {
+					
+					new Thread(new Runnable() {
 						
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							try {
+								sendGetOrder();
+							} catch (Exception e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+					}).start();
+					
+					for(int i = 0; i < 10; i++) {
+						if(listOrder != null) {
+							break;
+						}
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					
+					Log.d("QUYYYY", "Bat Dau Chay");
+					
+					for(int i = 0; i < listOrder.size(); i++) {
+						Log.d("QUYYY", "--" + listOrder.get(i));
+					}
+					
+					if (iamMarker14) {
+						diLayDo14();
+					} else {
+						diLayDo11();
 					}
 				}
 			}).start();
@@ -214,7 +257,7 @@ public class MainActivity extends RobotActivity implements OnClickListener,
 	public boolean mMarkerDetect = false;
 	public ShopieSensors.Monitor mSensorsMonitor;
 	
-	private void diLayDo() {
+	private void diLayDo14() {
 
 		// Vao vi tri chien dau
 		vaoViTriChienDau();
@@ -254,6 +297,46 @@ public class MainActivity extends RobotActivity implements OnClickListener,
 
 	}
 
+	private void diLayDo11() {
+
+		// Vao vi tri chien dau
+		vaoViTriChienDau();
+		hadMoveToSTep = 1;
+
+		// Vao khu vuc 1
+		vaoKhuVuc1();
+
+		// Lay do o khu vuc 1
+		layDoOKhuVuc1_11();
+
+		// Vao khu vuc 2
+		vaoKhuVuc2();
+		hadMoveToSTep = 2;
+
+		// Lay do o khu vuc 2
+		layDoOKhuVuc2_11();
+
+		// Vao khu vuc 3
+		vaoKhuVuc3();
+		hadMoveToSTep = 3;
+
+		// Lay do o khu vuc 3
+		layDoOKhuVuc3_11();
+
+		// Vao khu vuc 4
+		vaoKhuVuc4();
+		hadMoveToSTep = 4;
+
+		// Lay do o khu vuc 4
+		layDoOKhuVuc4_11();
+		
+		
+		// Quay tro ve
+		quayTroVe();
+		hadMoveToSTep = 0;
+
+	}
+	
 	private void vaoViTriChienDau() {
 		if(!isMoveBack) {
 			move((float) 0, (float) -2, (float) 0, wakeUp, getConnectedRobot());
@@ -278,7 +361,7 @@ public class MainActivity extends RobotActivity implements OnClickListener,
 		// Truoc mat
 		for (int i = 0; i < listOrder.size(); i++) {
 			if (listOrder.get(i).toLowerCase()
-					.contains("omachi")
+					.contains("ô ma chi")
 					|| listOrder.get(i).toLowerCase()
 							.contains("hảo hảo")) {
 				numberOfFoodInPackage++;
@@ -302,6 +385,57 @@ public class MainActivity extends RobotActivity implements OnClickListener,
 					.contains("xà phòng tắm")
 					|| listOrder.get(i).toLowerCase()
 							.contains("nước rửa tay khô")) {
+				numberOfFoodInPackage++;
+				if (!hadMoveToPosition) {
+					move((float) -1.5, (float) 0, (float) 0,
+							wakeUp, getConnectedRobot());
+					hadMoveToPosition = true;
+				}
+				sayOrderItem(listOrder.get(i));
+				listOrder.remove(i);
+			}
+		}
+		if (hadMoveToPosition) {
+			move((float) 1.5, (float) 0, (float) 0, wakeUp,
+					getConnectedRobot());
+			hadMoveToPosition = false;
+		}
+		if(numberOfFoodInPackage == 3) {
+			veTraQua();
+		}
+	}
+	private void layDoOKhuVuc1_11() {
+		// Truoc mat
+		for (int i = 0; i < listOrder.size(); i++) {
+			if (listOrder.get(i).toLowerCase()
+					.contains("socola")
+					|| listOrder.get(i).toLowerCase()
+							.contains("kẹo cao su")
+							|| listOrder.get(i).toLowerCase()
+							.contains("bánh quy")) {
+				numberOfFoodInPackage++;
+				if (!hadMoveToPosition) {
+					move((float) 1, (float) 0, (float) 0,
+							wakeUp, getConnectedRobot());
+					hadMoveToPosition = true;
+				}
+				sayOrderItem(listOrder.get(i));
+				listOrder.remove(i);
+			}
+		}
+		if (hadMoveToPosition) {
+			move((float) -1, (float) 0, (float) 0, wakeUp,
+					getConnectedRobot());
+			hadMoveToPosition = false;
+		}
+		// Sau lung
+		for (int i = 0; i < listOrder.size(); i++) {
+			if (listOrder.get(i).toLowerCase()
+					.contains("nho")
+					|| listOrder.get(i).toLowerCase()
+							.contains("táo")
+							|| listOrder.get(i).toLowerCase()
+							.contains("cà rốt")) {
 				numberOfFoodInPackage++;
 				if (!hadMoveToPosition) {
 					move((float) -1.5, (float) 0, (float) 0,
@@ -358,6 +492,54 @@ public class MainActivity extends RobotActivity implements OnClickListener,
 					.contains("giấy ăn")
 					|| listOrder.get(i).toLowerCase()
 							.contains("giấy ăn")) {
+				numberOfFoodInPackage++;
+				if (!hadMoveToPosition) {
+					move((float) -1.5, (float) 0, (float) 0,
+							wakeUp, getConnectedRobot());
+					hadMoveToPosition = true;
+				}
+				sayOrderItem(listOrder.get(i));
+				listOrder.remove(i);
+			}
+		}
+		if (hadMoveToPosition) {
+			move((float) 1.5, (float) 0, (float) 0, wakeUp,
+					getConnectedRobot());
+			hadMoveToPosition = false;
+		}
+		if(numberOfFoodInPackage == 3) {
+			veTraQua();
+		}
+	}
+	private void layDoOKhuVuc2_11() {
+		// Truoc mat
+		for (int i = 0; i < listOrder.size(); i++) {
+			if (listOrder.get(i).toLowerCase().contains("poca")
+					|| listOrder.get(i).toLowerCase()
+							.contains("ostar")) {
+				numberOfFoodInPackage++;
+				if (!hadMoveToPosition) {
+					move((float) 1, (float) 0, (float) 0,
+							wakeUp, getConnectedRobot());
+					hadMoveToPosition = true;
+				}
+				sayOrderItem(listOrder.get(i));
+				listOrder.remove(i);
+			}
+		}
+		if (hadMoveToPosition) {
+			move((float) -1, (float) 0, (float) 0, wakeUp,
+					getConnectedRobot());
+			hadMoveToPosition = false;
+		}
+		// Sau lung
+		for (int i = 0; i < listOrder.size(); i++) {
+			if (listOrder.get(i).toLowerCase()
+					.contains("coca")
+					|| listOrder.get(i).toLowerCase()
+							.contains("sữa chua uống")
+							|| listOrder.get(i).toLowerCase()
+							.contains("nước suối")) {
 				numberOfFoodInPackage++;
 				if (!hadMoveToPosition) {
 					move((float) -1.5, (float) 0, (float) 0,
@@ -445,6 +627,52 @@ public class MainActivity extends RobotActivity implements OnClickListener,
 			veTraQua();
 		}
 	}
+	private void layDoOKhuVuc3_11() {
+		// Truoc mat
+		for (int i = 0; i < listOrder.size(); i++) {
+			if (listOrder.get(i).toLowerCase().contains("xà phòng tắm")
+					|| listOrder.get(i).toLowerCase()
+							.contains("nước rửa tay khô")) {
+				numberOfFoodInPackage++;
+				if (!hadMoveToPosition) {
+					move((float) 1.5, (float) 0, (float) 0,
+							wakeUp, getConnectedRobot());
+					hadMoveToPosition = true;
+				}
+				sayOrderItem(listOrder.get(i));
+				listOrder.remove(i);
+			}
+		}
+		if (hadMoveToPosition) {
+			move((float) -1.5, (float) 0, (float) 0, wakeUp,
+					getConnectedRobot());
+			hadMoveToPosition = false;
+		}
+		// Sau lung
+		for (int i = 0; i < listOrder.size(); i++) {
+			if (listOrder.get(i).toLowerCase()
+					.contains("ô ma chi")
+					|| listOrder.get(i).toLowerCase()
+							.contains("hảo hảo")) {
+				numberOfFoodInPackage++;
+				if (!hadMoveToPosition) {
+					move((float) -1, (float) 0, (float) 0,
+							wakeUp, getConnectedRobot());
+					hadMoveToPosition = true;
+				}
+				sayOrderItem(listOrder.get(i));
+				listOrder.remove(i);
+			}
+		}
+		if (hadMoveToPosition) {
+			move((float) 1, (float) 0, (float) 0, wakeUp,
+					getConnectedRobot());
+			hadMoveToPosition = false;
+		}
+		if(numberOfFoodInPackage == 3) {
+			veTraQua();
+		}
+	}
 	private void vaoKhuVuc4() {
 		if(!isMoveBack) {
 			move((float) 0, (float) 2, (float) 0, wakeUp,
@@ -485,6 +713,53 @@ public class MainActivity extends RobotActivity implements OnClickListener,
 					.contains("ostar")
 					|| listOrder.get(i).toLowerCase()
 							.contains("poca")) {
+				numberOfFoodInPackage++;
+				if (!hadMoveToPosition) {
+					move((float) -1, (float) 0, (float) 0,
+							wakeUp, getConnectedRobot());
+					hadMoveToPosition = true;
+				}
+				sayOrderItem(listOrder.get(i));
+				listOrder.remove(i);
+			}
+		}
+		if (hadMoveToPosition) {
+			move((float) 1, (float) 0, (float) 0, wakeUp,
+					getConnectedRobot());
+			hadMoveToPosition = false;
+		}
+		if(numberOfFoodInPackage == 3) {
+			veTraQua();
+		}
+	}
+	private void layDoOKhuVuc4_11() {
+		// Truoc mat
+		for (int i = 0; i < listOrder.size(); i++) {
+			if (listOrder.get(i).toLowerCase()
+					.contains("giấy ăn")
+					|| listOrder.get(i).toLowerCase()
+							.contains("giấy ăn")) {
+				numberOfFoodInPackage++;
+				if (!hadMoveToPosition) {
+					move((float) 1.5, (float) 0, (float) 0,
+							wakeUp, getConnectedRobot());
+					hadMoveToPosition = true;
+				}
+				sayOrderItem(listOrder.get(i));
+				listOrder.remove(i);
+			}
+		}
+		if (hadMoveToPosition) {
+			move((float) -1.5, (float) 0, (float) 0, wakeUp,
+					getConnectedRobot());
+			hadMoveToPosition = false;
+		}
+		// Sau lung
+		for (int i = 0; i < listOrder.size(); i++) {
+			if (listOrder.get(i).toLowerCase()
+					.contains("café")
+					|| listOrder.get(i).toLowerCase()
+							.contains("trà nhài")) {
 				numberOfFoodInPackage++;
 				if (!hadMoveToPosition) {
 					move((float) -1, (float) 0, (float) 0,
@@ -805,6 +1080,99 @@ public class MainActivity extends RobotActivity implements OnClickListener,
 			}
 		});
 	}
+	
+	
+	private void sendGetOrder() throws Exception {
+
+		String url = urlOrder + accessToken;
+		listOrder = new ArrayList<String>();
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+
+		// optional default is GET
+		con.setRequestMethod("GET");
+
+		//add request header
+		con.setRequestProperty("User-Agent", USER_AGENT);
+
+		int responseCode = con.getResponseCode();
+		System.out.println("\nSending 'GET' request to URL : " + url);
+		System.out.println("Response Code : " + responseCode);
+
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String inputLine;
+		StringBuffer response = new StringBuffer();
+
+		while ((inputLine = in.readLine()) != null) {
+			response.append(inputLine);
+		}
+		in.close();
+		JSONObject jsonObj = new JSONObject(response.toString());
+		String status = jsonObj.getString("status");
+		if ("success".equals(status)) {
+			JSONArray array = jsonObj.getJSONArray("result");
+			for (int i = 0; i < array.length(); i++) {
+				int num = array.getJSONObject(i).getInt("number");
+				String name = array.getJSONObject(i).getString("name");
+				JSONObject location = array.getJSONObject(i).getJSONObject("location");
+				int floor = location.getInt("floor");
+				int aisle = location.getInt("aisle");
+				String result = num + " " + name + " ở tầng " + floor + " gian hàng " + aisle;
+				listOrder.add(result);
+				System.out.println(result);
+			}
+		}
+		//print result
+		//System.out.println(response.toString());
+
+	}
+	
+	// HTTP GET request
+		private void sendGetSaleOff() throws Exception {
+
+			String url = urlSaleOff + accessToken;
+			lstSaleOff = new ArrayList<String>();
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+
+			// optional default is GET
+			con.setRequestMethod("GET");
+
+			//add request header
+			con.setRequestProperty("User-Agent", USER_AGENT);
+
+			int responseCode = con.getResponseCode();
+			System.out.println("\nSending 'GET' request to URL : " + url);
+			System.out.println("Response Code : " + responseCode);
+
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			String inputLine;
+			StringBuffer response = new StringBuffer();
+
+			while ((inputLine = in.readLine()) != null) {
+				response.append(inputLine);
+			}
+			in.close();
+			JSONObject jsonObj = new JSONObject(response.toString());
+			String status = jsonObj.getString("status");
+			if ("success".equals(status)) {
+				JSONArray array = jsonObj.getJSONArray("result");
+				for (int i = 0; i < array.length(); i++) {
+					String name = array.getJSONObject(i).getString("food_name");
+					String location = array.getJSONObject(i).getString("location");
+					int time = array.getJSONObject(i).getInt("time");
+					String result = name + " vị trí " + location + " thời gian " + time;
+					lstSaleOff.add(result);
+					System.out.println(result);
+				}
+			}
+			//print result
+			//System.out.println(response.toString());
+
+		}
+	
 
 	public void log(final String msg) {
 		Log.e("Shoppie", msg);
