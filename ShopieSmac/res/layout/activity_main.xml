@@ -109,6 +109,20 @@
                 android:layout_height="40dp"
                 android:gravity="center"
                 android:text="Done Robot" />
+            <Button
+                android:id="@+id/retry_robot"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:gravity="center"
+                android:text="Retry Robot" />
+            
+            <CheckBox 
+                android:id="@+id/marker14"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:checked="true"/>
+            
         </LinearLayout>
     </ScrollView>
 
